@@ -1,0 +1,321 @@
+# --- Backend selection ------------------------------------------------------
+# "generic_mock" -> free, offline, placeholder text (no real answers)
+# "claude_cli"   -> shells out to the `claude` CLI for real answers (needs it
+#                   installed + `claude login` run once; uses your Claude
+#                   Code/subscription usage, not separate API billing)
+# "real_api"     -> use the real anthropic package (needs ANTHROPIC_API_KEY)
+ANTHROPIC_BACKEND = "generic_mock"
+
+if ANTHROPIC_BACKEND in ("generic_mock", "claude_cli"):
+    import sys
+    import types
+    import uuid
+    import random
+    import re
+    import hashlib
+    import json
+    import shutil
+    import subprocess
+
+    # --- Generic reply generation (no topic-specific canned answers) --------
+    # Used by "generic_mock". Everything here is derived only from the
+    # request itself (messages, system, temperature, max_tokens) — nothing
+    # is written for a specific prompt, so it works the same for any
+    # notebook/any question.
+
+    _STOPWORDS = {
+        "what", "this", "that", "with", "from", "have", "about", "your",
+        "just", "write", "generate", "please", "which", "would", "could",
+        "should", "short", "very", "sentence", "description", "the", "and",
+        "for", "are", "was", "were", "been", "define", "explain", "tell",
+        "give", "make", "create", "provide", "using", "sample", "each", "one",
+    }
+
+    _OPENERS = [
+        "Here's a placeholder response",
+        "This is a mocked reply",
+        "Simulated output",
+        "Stand-in text",
+        "Generated placeholder",
+        "Mock reply",
+    ]
+    _CONNECTORS = [
+        "touching on",
+        "loosely related to",
+        "in the general area of",
+        "standing in for a real answer about",
+        "referencing",
+        "sketching out something about",
+    ]
+
+    def _last_user_text(messages):
+        for m in reversed(messages):
+            if m.get("role") == "user":
+                content = m.get("content", "")
+                return content if isinstance(content, str) else str(content)
+        return ""
+
+    def _last_assistant_prefill(messages):
+        # If the last message is an assistant turn, it's a prefill (e.g. "```json")
+        if messages and messages[-1].get("role") == "assistant":
+            content = messages[-1].get("content", "")
+            return content if isinstance(content, str) else str(content)
+        return ""
+
+    def _extract_keywords(text, n=4):
+        words = re.findall(r"[A-Za-z']{4,}", text.lower())
+        seen = []
+        for w in words:
+            if w not in _STOPWORDS and w not in seen:
+                seen.append(w)
+        return seen[:n] or ["this"]
+
+    def _seeded_rng(*parts):
+        h = hashlib.sha256("||".join(str(p) for p in parts).encode()).hexdigest()
+        return random.Random(int(h[:16], 16))
+
+    def _generic_prose(rng, keywords, target_words):
+        kw = ", ".join(keywords)
+        sentence = f"{rng.choice(_OPENERS)} {rng.choice(_CONNECTORS)} {kw}."
+        while len(sentence.split()) < target_words:
+            sentence += f" {rng.choice(_OPENERS)} {rng.choice(_CONNECTORS)} {rng.choice(keywords)}."
+        return sentence
+
+    _CODE_FENCE_RE = re.compile(r"```\s*([a-zA-Z0-9_+-]*)\s*$")
+
+    def _generate_generic_reply(messages, system=None, temperature=1.0, max_tokens=1000):
+        user_text = _last_user_text(messages)
+        keywords = _extract_keywords(user_text)
+
+        temperature = 1.0 if temperature is None else temperature
+        seed_parts = [user_text, system, len(messages)]
+        # Low temperature -> deterministic (same seed every call, like a real
+        # low-temp model). Higher temperature -> inject real entropy so
+        # repeated calls with the same prompt actually vary, like the API.
+        if temperature > 0.3:
+            seed_parts.append(random.random())
+        rng = _seeded_rng(*seed_parts)
+
+        # Structural pattern: an assistant-turn prefill ending in a code fence
+        # (```json, ```python, ```bash, bare ```, ...). This is a *format*
+        # detector, not a topic-specific answer — it works for any language
+        # tag or schema, derived only from the user's own keywords.
+        prefill = _last_assistant_prefill(messages)
+        fence_match = _CODE_FENCE_RE.search(prefill)
+        if fence_match:
+            lang = fence_match.group(1).lower()
+            if lang == "json":
+                obj = {kw: f"placeholder_value_{i}" for i, kw in enumerate(keywords)}
+                return json.dumps(obj, indent=2) + "\n```"
+            comment = "//" if lang in ("js", "javascript", "ts", "typescript", "java", "c", "cpp") else "#"
+            body = "\n".join(f"{comment} mocked step involving {kw}" for kw in keywords)
+            return f"{body}\n```"
+
+        # Length is independent of max_tokens — a real response's length
+        # doesn't scale with the safety-net cutoff either (see the notebook's
+        # own note on max_tokens being a cutoff, not a target).
+        target_words = rng.randint(12, 30)
+        text = _generic_prose(rng, keywords, target_words)
+
+        # Still respect max_tokens as a hard cutoff, same as the real API.
+        approx_max_chars = max(1, max_tokens) * 4
+        if len(text) > approx_max_chars:
+            text = text[:approx_max_chars].rsplit(" ", 1)[0] + "..."
+        return text
+
+    # --- Claude CLI bridge (real answers via `claude -p`) --------------------
+    # Used by "claude_cli". A real Claude call, but routed through your
+    # already-authenticated Claude Code CLI instead of the Messages API.
+
+    class ClaudeCLIError(RuntimeError):
+        pass
+
+    _CLAUDE_CLI_PATH = shutil.which("claude")
+
+    def _messages_to_transcript(messages, system=None):
+        lines = []
+        if system:
+            lines.append(f"[System instructions — follow these]\n{system}")
+        for m in messages[:-1] if (messages and messages[-1].get("role") == "assistant") else messages:
+            role = m.get("role", "user")
+            content = m.get("content", "")
+            content = content if isinstance(content, str) else str(content)
+            label = "Human" if role == "user" else "Assistant"
+            lines.append(f"{label}: {content}")
+
+        prefill = _last_assistant_prefill(messages)
+        if prefill:
+            lines.append(
+                "[Continue the Assistant response below, starting exactly where it "
+                f"left off. Do not repeat this partial text.]\nAssistant so far: {prefill}"
+            )
+        else:
+            lines.append("Assistant:")
+        return "\n\n".join(lines)
+
+    def _call_claude_cli(messages, system=None, timeout=120):
+        if _CLAUDE_CLI_PATH is None:
+            raise ClaudeCLIError(
+                "The `claude` CLI was not found on PATH. Install Claude Code and run "
+                "`claude login` first, or set ANTHROPIC_BACKEND back to \"generic_mock\"."
+            )
+        prompt = _messages_to_transcript(messages, system=system)
+        try:
+            result = subprocess.run(
+                [_CLAUDE_CLI_PATH, "-p", prompt],
+                capture_output=True,
+                text=True,
+                timeout=timeout,
+            )
+        except subprocess.TimeoutExpired as exc:
+            raise ClaudeCLIError(
+                f"`claude -p` timed out after {timeout}s. It may be waiting on a "
+                "permission prompt it can't show here — try a simpler question."
+            ) from exc
+
+        if result.returncode != 0:
+            raise ClaudeCLIError(
+                f"`claude -p` exited with code {result.returncode}.\n"
+                f"stderr:\n{result.stderr.strip()}\n"
+                "Make sure you're logged in (`claude login`) and try again."
+            )
+
+        text = result.stdout.strip()
+        if not text:
+            raise ClaudeCLIError(f"`claude -p` returned an empty response.\nstderr:\n{result.stderr.strip()}")
+
+        prefill = _last_assistant_prefill(messages)
+        if prefill and text.startswith(prefill.strip()):
+            text = text[len(prefill.strip()):].lstrip()
+        return text
+
+    # --- Backend dispatch ----------------------------------------------------
+
+    def _generate_reply(messages, system=None, temperature=1.0, max_tokens=1000):
+        messages = messages or []
+        if ANTHROPIC_BACKEND == "claude_cli":
+            return _call_claude_cli(messages, system=system)
+        return _generate_generic_reply(messages, system=system, temperature=temperature, max_tokens=max_tokens)
+
+    def _apply_stop_sequences(text, stop_sequences):
+        if stop_sequences:
+            for seq in stop_sequences:
+                idx = text.find(seq)
+                if idx != -1:
+                    return text[:idx]
+        return text
+
+    # --- API-shaped plumbing (mirrors the real SDK's object shapes) ---------
+
+    class _MockUsage:
+        def __init__(self, text):
+            self.input_tokens = max(1, len(text) // 4)
+            self.output_tokens = max(1, len(text) // 4)
+
+    class _MockTextBlock:
+        def __init__(self, text):
+            self.type = "text"
+            self.text = text
+
+    class _MockMessage:
+        def __init__(self, text, model, stop_reason="end_turn"):
+            self.id = f"msg_mock_{uuid.uuid4().hex[:12]}"
+            self.type = "message"
+            self.role = "assistant"
+            self.model = model
+            self.content = [_MockTextBlock(text)]
+            self.stop_reason = stop_reason
+            self.stop_sequence = None
+            self.usage = _MockUsage(text)
+
+        def __repr__(self):
+            return f"_MockMessage(model={self.model!r}, text={self.content[0].text[:60]!r}...)"
+
+    class _MockDelta:
+        def __init__(self, text):
+            self.type = "text_delta"
+            self.text = text
+
+    class _MockStreamEvent:
+        def __init__(self, event_type, delta=None):
+            self.type = event_type
+            self.delta = delta
+
+        def __repr__(self):
+            return f"_MockStreamEvent(type={self.type!r})"
+
+    def _chunk_text(text, chunk_size=12):
+        words = text.split(" ")
+        buf = ""
+        for w in words:
+            buf += w + " "
+            if len(buf) >= chunk_size:
+                yield buf
+                buf = ""
+        if buf:
+            yield buf
+
+    def _mock_stream_events(text):
+        yield _MockStreamEvent("message_start")
+        for chunk in _chunk_text(text):
+            yield _MockStreamEvent("content_block_delta", delta=_MockDelta(chunk))
+        yield _MockStreamEvent("message_stop")
+
+    class _MockMessageStreamManager:
+        def __init__(self, text, model):
+            self._text = text
+            self._final_message = _MockMessage(text, model)
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc_val, exc_tb):
+            return False
+
+        @property
+        def text_stream(self):
+            for chunk in _chunk_text(self._text):
+                yield chunk
+
+        def __iter__(self):
+            return iter(_mock_stream_events(self._text))
+
+        def get_final_message(self):
+            return self._final_message
+
+    class _MockMessages:
+        def create(self, *, model, max_tokens=1000, messages=None, system=None,
+                   temperature=1.0, stop_sequences=None, stream=False, **kwargs):
+            text = _generate_reply(messages, system=system, temperature=temperature, max_tokens=max_tokens)
+            text = _apply_stop_sequences(text, stop_sequences)
+            if stream:
+                return _mock_stream_events(text)
+            return _MockMessage(text, model)
+
+        def stream(self, *, model, max_tokens=1000, messages=None, system=None,
+                   temperature=1.0, stop_sequences=None, **kwargs):
+            text = _generate_reply(messages, system=system, temperature=temperature, max_tokens=max_tokens)
+            text = _apply_stop_sequences(text, stop_sequences)
+            return _MockMessageStreamManager(text, model)
+
+    class _MockAnthropic:
+        def __init__(self, *args, **kwargs):
+            self.messages = _MockMessages()
+
+    # Register a fake `anthropic` module so `from anthropic import Anthropic`
+    # (later in this notebook) picks up the mock instead of the real package.
+    _mock_module = types.ModuleType("anthropic")
+    _mock_module.Anthropic = _MockAnthropic
+    sys.modules["anthropic"] = _mock_module
+
+    if ANTHROPIC_BACKEND == "claude_cli":
+        if _CLAUDE_CLI_PATH:
+            print(f"Backend: claude_cli — using {_CLAUDE_CLI_PATH} for real answers.")
+        else:
+            print("Backend: claude_cli — WARNING: `claude` CLI not found on PATH. "
+                  "Calls will fail until it's installed and you run `claude login`.")
+    else:
+        print("Backend: generic_mock — no network calls, no API key, placeholder text only.")
+else:
+    print("Backend: real_api — using the real anthropic package. Make sure ANTHROPIC_API_KEY is set.")
+# -----------------------------------------------------------------------------
