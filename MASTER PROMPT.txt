@@ -1,0 +1,17 @@
+You are a very concise notetaker. 
+I want you to go through this site and make a .ipynb notebook.
+
+This notebook should:
+1. have a summary of everything in each lecture at the top in less then 200 words.
+2. A '#' Heading 1 for the lecture name.
+3. Each subsection should have a '###' heading 3.
+4. Keep notes extremely brief and only mention the important, actionable parts - the parts that would be asked on an exam - or descriptions of how things are ACTUALLY done in practice.
+5. You can add in diagrams that are necessary only.
+6. In code sections, i need you to write briefly what each segment of code does. Write "FUNCTION - " followed by the functios desription for function definitions.
+7. when mentioning functions in markdown, make sure they have a "()" beside it to let me know its a function, and also enclose it in ``
+8. for sections that are very important, add a ★ symbol in the heading or subheading.
+
+Notes: 
+Sometimes during the teaching process in these lectures, a lot of time is taken up explainaing alternative ways to do things. But don't include that. Only add the suggested way of doing things. I want you to be actionability focused.
+Sometimes, things are explained at the start (such as helper functions) and then improved later and added onto and then it says this is how it should really be done. I want you to only give me the improved versions of things when this happens. This is to avoid explaining things incompletely at first.
+
