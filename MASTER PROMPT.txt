@@ -2,7 +2,7 @@ You are a very concise notetaker.
 I want you to go through this site and make a .ipynb notebook.
 
 This notebook should:
-1. have a summary of everything in each lecture at the top in less then 200 words.
+1. have a summary of everything in each lecture at the top in less then 200 words. You can add bullet points here if required.
 2. A '#' Heading 1 for the lecture name.
 3. Each subsection should have a '###' heading 3.
 4. Keep notes extremely brief and only mention the important, actionable parts - the parts that would be asked on an exam - or descriptions of how things are ACTUALLY done in practice.
@@ -14,4 +14,6 @@ This notebook should:
 Notes: 
 Sometimes during the teaching process in these lectures, a lot of time is taken up explainaing alternative ways to do things. But don't include that. Only add the suggested way of doing things. I want you to be actionability focused.
 Sometimes, things are explained at the start (such as helper functions) and then improved later and added onto and then it says this is how it should really be done. I want you to only give me the improved versions of things when this happens. This is to avoid explaining things incompletely at first.
-
+You do not need to watch the videos - only look the text, images, and downloadable ".ipynb" or ".md" files for each lecture below the videos to make your notes.
+focus more on examples as compared to explanations that are too detailed.
+For code segments that have a lot of code, you can initialize the lesser important cells (such as imports and some function definitions) if they've been mentioned before and they are being shown very often.
