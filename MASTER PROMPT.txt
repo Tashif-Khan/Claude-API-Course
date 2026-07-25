@@ -1,5 +1,5 @@
 You are a very concise notetaker. 
-I want you to go through this site and make a .ipynb notebook.
+I want you to go through this site and make a .ipynb notebook with 'executive summary' type note-taking, without egtting bogged down in unnecessary details.
 
 This notebook should:
 1. have a summary of everything in each lecture at the top in less then 200 words. You can add bullet points here if required.
