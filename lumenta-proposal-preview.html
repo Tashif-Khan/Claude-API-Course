@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lumenta Digital — Project Phases &amp; Investment</title>
+    <style>
+      :root {
+        --ink: #1c1f24;
+        --muted: #6b7280;
+        --line: #e2e5ea;
+        --paper: #ffffff;
+        --wash: #f6f7f9;
+        --accent: #2f5d62;
+        --free: #8a8f98;
+        --head: #141426;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 40px 20px 70px;
+        background: var(--wash);
+        color: var(--ink);
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+          Arial, sans-serif;
+        font-size: 15px;
+        line-height: 1.55;
+      }
+      .sheet {
+        max-width: 860px;
+        margin: 0 auto 26px;
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 40px 44px 30px;
+      }
+      /* small uppercase eyebrow above a section heading */
+      h1 {
+        font-size: 23px;
+        margin: 0 0 22px;
+        font-weight: 700;
+        border-bottom: 2px solid var(--ink);
+        padding-bottom: 14px;
+      }
+      h2 {
+        font-size: 16px;
+        margin: 26px 0 8px;
+        font-weight: 700;
+      }
+      p {
+        margin: 0 0 12px;
+      }
+      ol {
+        margin: 0 0 12px;
+        padding-left: 22px;
+      }
+      ol li {
+        margin-bottom: 5px;
+      }
+      .completion {
+        margin-top: 20px;
+      }
+      .completion strong {
+        color: var(--ink);
+      }
+
+      /* investment table */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+        margin-top: 4px;
+      }
+      thead th {
+        background: var(--head);
+        color: #fff;
+        text-align: left;
+        font-size: 12px;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        padding: 11px 12px;
+        font-weight: 700;
+      }
+      thead th.num {
+        text-align: right;
+      }
+      tbody td {
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--line);
+        vertical-align: top;
+      }
+      td.idx {
+        color: var(--muted);
+        width: 38px;
+      }
+      td.num {
+        text-align: right;
+        white-space: nowrap;
+      }
+      /* rows completed at no charge are shown muted + italic in the Billed column */
+      tr.free td.billed {
+        color: var(--free);
+        font-style: italic;
+      }
+      tr.total td {
+        border-bottom: none;
+        border-top: 2px solid var(--ink);
+        font-weight: 700;
+        padding-top: 12px;
+        font-size: 15px;
+        background: var(--wash);
+      }
+      .table-note {
+        font-style: italic;
+        color: var(--muted);
+        font-size: 13px;
+        margin: 10px 2px 0;
+        text-align: center;
+      }
+
+      footer {
+        max-width: 860px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        font-size: 12.5px;
+        color: var(--muted);
+        padding: 0 4px;
+      }
+      @media (max-width: 620px) {
+        body {
+          padding: 16px 10px 40px;
+        }
+        .sheet {
+          padding: 24px 18px 24px;
+        }
+        table {
+          font-size: 13px;
+        }
+        thead th,
+        tbody td {
+          padding-left: 6px;
+          padding-right: 6px;
+        }
+      }
+      @media print {
+        body {
+          background: #fff;
+          padding: 0;
+        }
+        .sheet {
+          border: none;
+          border-radius: 0;
+          padding: 0 0 24px;
+          max-width: none;
+        }
+        footer {
+          max-width: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Page 5: Project Phases -->
+    <div class="sheet">
+      <h1>3. Project Phases</h1>
+
+      <h2>Phase 1: Discovery and Asset Collection</h2>
+      <p>We gather everything needed to build the site:</p>
+      <ol>
+        <li>Logos and brand files</li>
+        <li>Photography and before/after images</li>
+        <li>Service descriptions and any remaining copy</li>
+        <li>Boulevard account login credentials</li>
+        <li>Access to the existing WordPress site</li>
+        <li>Domain registrar transfer code</li>
+        <li>Any other assets or materials</li>
+      </ol>
+
+      <h2>Phase 2: Build</h2>
+      <p>
+        We construct the full website: design, all 31 pages, booking
+        integration, reviews integration, and SEO setup. Client reviews progress
+        and provides feedback through 2 revision rounds.
+      </p>
+
+      <h2>Phase 3: Launch and Deployment</h2>
+      <p>
+        Domain transfer, hosting configuration, final testing, and public launch
+        of the new site.
+      </p>
+
+      <p class="completion">
+        <strong>Completion date:</strong> on or before August 1st, 2026.
+      </p>
+    </div>
+    <footer>
+      <span>&copy; Lumenta Digital Inc. &mdash; All rights reserved.</span>
+      <span>Page | 5</span>
+    </footer>
+
+    <!-- Page 6: Investment -->
+    <div class="sheet" style="margin-top: 26px">
+      <h1>4. Investment</h1>
+      <table>
+        <thead>
+          <tr>
+            <th class="idx">No.</th>
+            <th>Work Item</th>
+            <th class="num">Value</th>
+            <th class="num">Billed</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="free">
+            <td class="idx">1</td>
+            <td>Discovery, site structure, content audit</td>
+            <td class="num">$850</td>
+            <td class="num billed">Included</td>
+          </tr>
+          <tr class="free">
+            <td class="idx">2</td>
+            <td>UI design system and page templates</td>
+            <td class="num">$1,500</td>
+            <td class="num billed">Included</td>
+          </tr>
+          <tr>
+            <td class="idx">3</td>
+            <td>Frontend build, responsive</td>
+            <td class="num">$2,796</td>
+            <td class="num">$2,330</td>
+          </tr>
+          <tr>
+            <td class="idx">4</td>
+            <td>17 service pages, production</td>
+            <td class="num">$1,500</td>
+            <td class="num">$945</td>
+          </tr>
+          <tr>
+            <td class="idx">5</td>
+            <td>11 core pages, production</td>
+            <td class="num">$1,068</td>
+            <td class="num">$890</td>
+          </tr>
+          <tr class="free">
+            <td class="idx">6</td>
+            <td>Blog engine and 3 launch posts</td>
+            <td class="num">$400</td>
+            <td class="num billed">Included</td>
+          </tr>
+          <tr>
+            <td class="idx">7</td>
+            <td>Boulevard booking integration</td>
+            <td class="num">$318</td>
+            <td class="num">$350</td>
+          </tr>
+          <tr>
+            <td class="idx">8</td>
+            <td>Live Google Reviews integration</td>
+            <td class="num">$228</td>
+            <td class="num">$250</td>
+          </tr>
+          <tr>
+            <td class="idx">9</td>
+            <td>Technical SEO (schema, meta, sitemap, GA4, GSC, redirects)</td>
+            <td class="num">$636</td>
+            <td class="num">$530</td>
+          </tr>
+          <tr class="free">
+            <td class="idx">10</td>
+            <td>Image optimization, renaming, alt text</td>
+            <td class="num">$250</td>
+            <td class="num billed">Included</td>
+          </tr>
+          <tr>
+            <td class="idx">11</td>
+            <td>Cross browser QA and revision rounds</td>
+            <td class="num">$180</td>
+            <td class="num">$150</td>
+          </tr>
+          <tr class="free">
+            <td class="idx">12</td>
+            <td>Domain transfer, launch</td>
+            <td class="num">$350</td>
+            <td class="num billed">Included</td>
+          </tr>
+          <tr class="free">
+            <td class="idx">13</td>
+            <td>Project management and client communication</td>
+            <td class="num">$885</td>
+            <td class="num billed">Included</td>
+          </tr>
+          <tr class="total">
+            <td class="idx">14</td>
+            <td>Totals</td>
+            <td class="num">$10,595</td>
+            <td class="num">$5,300</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="table-note">
+        Items marked Included were completed at no charge.
+      </p>
+    </div>
+    <footer>
+      <span>&copy; Lumenta Digital Inc. &mdash; All rights reserved.</span>
+      <span>Page | 6</span>
+    </footer>
+  </body>
+</html>
