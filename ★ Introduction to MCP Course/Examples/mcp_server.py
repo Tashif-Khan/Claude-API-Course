@@ -33,7 +33,6 @@ def read_document(
     return docs[doc_id]
 
 
-# TODO completed
 # MCP tool that finds an exact substring in a document and replaces it with new text.
 @mcp.tool(
     name="edit_document",
@@ -52,6 +51,7 @@ def edit_document(
         raise ValueError(f"Doc with id {doc_id} not found")
 
     docs[doc_id] = docs[doc_id].replace(old_str, new_str)
+    
 
 
 # TODO completed
@@ -120,3 +120,4 @@ def summarize_document(
 
 if __name__ == "__main__":
     mcp.run(transport="stdio")
+    
