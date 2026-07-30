@@ -1,3 +1,48 @@
+# =============================================================================
+# mcp_server.py - A minimal MCP server for working with a set of documents.
+#
+# WHAT AN MCP SERVER IS
+#   An MCP server doesn't do anything on its own. It's a program that sits and
+#   waits for an MCP *client* (Claude Desktop, the MCP Inspector, mcp_client.py)
+#   to connect and ask it for things. Think of it as a vending machine: it has
+#   stock on the shelves, but nothing happens until a customer walks up.
+#
+# WHAT THIS SERVER EXPOSES
+#   MCP has three kinds of things a server can offer, and this file has all three:
+#
+#   1. TOOLS      - Actions the AI can choose to run on its own.
+#                     * read_doc_contents - returns a document's text
+#                     * edit_document     - find-and-replace inside a document
+#
+#   2. RESOURCES  - Read-only data the client fetches by URI, like a GET request.
+#                   The AI doesn't pick these; the client asks for them.
+#                     * docs://documents          - list every document id
+#                     * docs://documents/{doc_id} - one document's contents
+#
+#   3. PROMPTS    - Pre-written instructions a user deliberately triggers,
+#                   usually from a slash-command menu in the client.
+#                     * format    - rewrite a document as Markdown
+#                     * summarize - condense a document
+#
+#   The rough split: tools are for the AI, resources are for the client,
+#   prompts are for the human.
+#
+# WHERE THE DATA LIVES
+#   In the `docs` dictionary below - plain in-memory Python. Edits last only as
+#   long as the process runs, and everything resets on restart. A real server
+#   would read from a database or the file system here.
+#
+# HOW TO RUN IT
+#   From this Examples/ folder (the one holding pyproject.toml):
+#
+#     uv run mcp dev mcp_server.py    <- runs it WITH the Inspector web UI
+#     uv run mcp run mcp_server.py    <- runs it bare, no UI
+#
+#   Running it bare looks like nothing happens: no output, no prompt returning.
+#   That is correct. The last line uses transport="stdio", meaning the server
+#   talks over standard input/output, so it just waits silently for a client.
+#   Use `mcp dev` when you want something to actually look at.
+# =============================================================================
 
 from mcp.server.fastmcp import FastMCP
 
