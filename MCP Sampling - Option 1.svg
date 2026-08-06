@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1420 1040" width="1420" height="1040" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" role="img">
+  <title>MCP sampling, Option 1: the server calls Claude directly</title>
+  <desc>A sequence diagram with four participants: Claude, Next JS plus MCP Client, MCP Server and Wikipedia. The client asks Claude to research a topic, Claude runs the research tool, the client sends a tool call request to the MCP server, the server queries Wikipedia three times, then notes that it needs Claude to summarise the results and sends a summarise request directly to Claude.</desc>
+
+  <rect width="1420" height="1040" fill="#FFFFFF"/>
+
+  <defs>
+    <marker id="arrowhead" viewBox="0 0 10 10" refX="9" refY="5"
+            markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#000000"/>
+    </marker>
+  </defs>
+
+  <!-- ================= LIFELINES ================= -->
+  <line x1="200"  y1="150" x2="200"  y2="790" stroke="#9AA0A6" stroke-width="3" stroke-dasharray="10 8"/>
+  <line x1="550"  y1="150" x2="550"  y2="590" stroke="#9AA0A6" stroke-width="3" stroke-dasharray="10 8"/>
+  <line x1="900"  y1="150" x2="900"  y2="790" stroke="#9AA0A6" stroke-width="3" stroke-dasharray="10 8"/>
+  <line x1="1230" y1="150" x2="1230" y2="790" stroke="#9AA0A6" stroke-width="3" stroke-dasharray="10 8"/>
+
+  <!-- ================= PARTICIPANTS ================= -->
+  <!-- Claude — Purple, bold pairing (T2 fill) to carry the source's highlight -->
+  <rect x="70" y="60" width="260" height="90" rx="8" fill="#EBD6F8" stroke="#A81FEE" stroke-width="3"/>
+  <text x="200" y="112" font-size="19" font-weight="700" fill="#000000" text-anchor="middle">Claude</text>
+
+  <!-- Next JS + MCP Client — Green -->
+  <rect x="420" y="60" width="260" height="90" rx="8" fill="#E3F6E3" stroke="#018001" stroke-width="3"/>
+  <text x="550" y="98" font-size="19" font-weight="700" fill="#000000" text-anchor="middle">
+    <tspan x="550" dy="0">Next JS +</tspan>
+    <tspan x="550" dy="28">MCP Client</tspan>
+  </text>
+
+  <!-- MCP Server — Blue -->
+  <rect x="770" y="60" width="260" height="90" rx="8" fill="#ECF3FC" stroke="#0B6BE8" stroke-width="3"/>
+  <text x="900" y="112" font-size="19" font-weight="700" fill="#000000" text-anchor="middle">MCP Server</text>
+
+  <!-- Wikipedia — Magenta -->
+  <rect x="1100" y="60" width="260" height="90" rx="8" fill="#FCEDF5" stroke="#D6009A" stroke-width="3"/>
+  <text x="1230" y="112" font-size="19" font-weight="700" fill="#000000" text-anchor="middle">Wikipedia</text>
+
+  <!-- ================= MESSAGES ================= -->
+  <!-- 1. Client -> Claude : Research a topic -->
+  <line x1="550" y1="235" x2="208" y2="235" stroke="#000000" stroke-width="3" marker-end="url(#arrowhead)"/>
+  <rect x="310" y="211" width="130" height="21" fill="#FFFFFF"/>
+  <text x="375" y="227" font-size="16" fill="#5F6368" text-anchor="middle">Research a topic</text>
+
+  <!-- 2. Claude -> Client : Run the 'research' tool -->
+  <line x1="200" y1="330" x2="542" y2="330" stroke="#000000" stroke-width="3" marker-end="url(#arrowhead)"/>
+  <rect x="286" y="306" width="178" height="21" fill="#FFFFFF"/>
+  <text x="375" y="322" font-size="16" fill="#5F6368" text-anchor="middle">Run the 'research' tool</text>
+
+  <!-- 3. Client -> Server : Tool Call Request -->
+  <line x1="550" y1="330" x2="892" y2="330" stroke="#000000" stroke-width="3" marker-end="url(#arrowhead)"/>
+  <rect x="651" y="306" width="140" height="21" fill="#FFFFFF"/>
+  <text x="721" y="322" font-size="16" fill="#5F6368" text-anchor="middle">Tool Call Request</text>
+
+  <!-- 4-6. Server -> Wikipedia : Research... (three times) -->
+  <line x1="900" y1="330" x2="1222" y2="330" stroke="#000000" stroke-width="3" marker-end="url(#arrowhead)"/>
+  <rect x="1013" y="306" width="96" height="21" fill="#FFFFFF"/>
+  <text x="1061" y="322" font-size="16" fill="#5F6368" text-anchor="middle">Research...</text>
+
+  <line x1="900" y1="385" x2="1222" y2="385" stroke="#000000" stroke-width="3" marker-end="url(#arrowhead)"/>
+  <rect x="1013" y="361" width="96" height="21" fill="#FFFFFF"/>
+  <text x="1061" y="377" font-size="16" fill="#5F6368" text-anchor="middle">Research...</text>
+
+  <line x1="900" y1="440" x2="1222" y2="440" stroke="#000000" stroke-width="3" marker-end="url(#arrowhead)"/>
+  <rect x="1013" y="416" width="96" height="21" fill="#FFFFFF"/>
+  <text x="1061" y="432" font-size="16" fill="#5F6368" text-anchor="middle">Research...</text>
+
+  <!-- ================= NOTES ON THE SERVER LIFELINE — Blue, T3 outline ================= -->
+  <rect x="780" y="490" width="240" height="90" rx="8" fill="#ECF3FC" stroke="#6BB8F5" stroke-width="3"/>
+  <text x="900" y="528" font-size="19" fill="#000000" text-anchor="middle">
+    <tspan x="900" dy="0">Research</tspan>
+    <tspan x="900" dy="28" font-weight="700">complete!</tspan>
+  </text>
+
+  <rect x="780" y="600" width="240" height="150" rx="8" fill="#ECF3FC" stroke="#6BB8F5" stroke-width="3"/>
+  <text x="900" y="640" font-size="19" fill="#000000" text-anchor="middle">
+    <tspan x="900" dy="0">I need to use</tspan>
+    <tspan x="900" dy="28"><tspan font-weight="700">Claude</tspan> to</tspan>
+    <tspan x="900" dy="28">summarize</tspan>
+    <tspan x="900" dy="28">the results!</tspan>
+  </text>
+
+  <!-- ================= EMPHASISED MESSAGE : Server -> Claude ================= -->
+  <line x1="780" y1="675" x2="212" y2="675" stroke="#000000" stroke-width="7" marker-end="url(#arrowhead)"/>
+  <rect x="386" y="642" width="224" height="27" fill="#FFFFFF"/>
+  <text x="498" y="663" font-size="19" font-weight="700" fill="#000000" text-anchor="middle">Please summarize this...</text>
+
+  <!-- ================= CAPTION — Indigo ================= -->
+  <rect x="360" y="830" width="700" height="150" rx="8" fill="#EEEEFC" stroke="#5A4FF0" stroke-width="3"/>
+  <text x="710" y="877" font-size="24" font-weight="700" fill="#000000" text-anchor="middle">Option #1</text>
+  <text x="710" y="910" font-size="19" fill="#000000" text-anchor="middle">
+    <tspan x="710" dy="0">Give the MCP server access to Claude, have the</tspan>
+    <tspan x="710" dy="28">research tool generate the summary itself</tspan>
+  </text>
+
+</svg>
